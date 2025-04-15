@@ -102,3 +102,51 @@ CAEs can be used for tasks like:
 - Dimensionality reduction
 - Anomaly detection
 - Generating new images
+
+---
+
+# How Convolutional AutoEncoder Is Structureed
+## Input Shape
+### 32x32x3 (CIFAR-10 images)
+
+Designed to denoise blurred images by learning a compressed representation and reconstructing the original.
+
+## Encoder (Downsampling Path)
+| Layer | Output Shape | Notes |
+| --- | --- | --- |
+| InputLayer | (None, 32, 32, 3) | CIFAR-10 RGB image |
+| Conv2D (32 filters) | (32, 32, 32) | Kernel size = 3, ReLU |
+| MaxPooling2D | (16, 16, 32) | Downsamples spatial size by 2 |
+| Conv2D (64 filters) | (16, 16, 64) | More feature channels |
+| MaxPooling2D | (8, 8, 64) | Further downsampling |
+| Conv2D (128 filters) | (8, 8, 128) | Deeper feature extraction |
+| MaxPooling2D | (4, 4, 128) | Final downsampling |
+| Conv2D (128 filters) | (4, 4, 128) | Final encoder layer |
+
+## End of Encoder
+The representation is compressed to (4, 4, 128).
+
+## Decoder (Upsampling Path)
+| Layer | Output Shape | Notes |
+| --- | --- | --- |
+| UpSampling2D | (8, 8, 128) | Doubles spatial size |
+| Conv2D (64 filters) | (8, 8, 64) | Refines features |
+| UpSampling2D | (16, 16, 64) | Doubles again |
+| Conv2D (32 filters) | (16, 16, 32) | Continues refining |
+| UpSampling2D | (32, 32, 32) | Back to original resolution |
+| Conv2D (3 filters) | (32, 32, 3) | Final output layer with sigmoid activation (reconstructs RGB image) |
+
+## Parameter Counts
+
+### Total Parameters
+~315K
+
+### Most learnable weights come from Conv2D layers.
+
+## Summary
+### Part        Purpose
+#### Encoder        Extracts and compresses visual features
+#### Decoder        Reconstructs a clean image from compressed features
+#### Use Case        Denoising blurry CIFAR-10 images
+
+https://poloclub.github.io/cnn-explainer/
